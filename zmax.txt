@@ -1,0 +1,284 @@
+         Zmax            Introduction Guide rev. 0.01           Page 1
+
+                                     Zmax
+                       Copyright 1990 Micro TECH Systems
+                              All Rights Reserved
+
+         Zmax  is designed to replace Zmodem. It uses 32 bit CRC's  on
+         file data blocks, the same as Zmodem, and 32 bit CRC's on its
+         information blocks, Zmodem uses 16 bit.
+
+         An  information  block  is  a block  of  data  used  to  send
+         information about the name of the file, the receivers  system
+         setup, about the next block of actual File Data, etc.
+
+         Zmax  is setup to allow almost unlimited future expansion  to
+         the protocol while allowing it to remain backwards compatible
+         with older versions.
+
+         In  stream mode Zmax sends blocks, the size being set by  the
+         receiver, of data but doesn't require ACKS from the receiver.
+
+         Zmax   should   (depending   on   equipment,   phone   lines,
+         implementation, etc.) allow  about 97.5 percent efficiency at
+         2400 baud on a 30K file compared to Zmodems 95 percent.
+
+         And  unlike Zmodem, Zmax reaches full speed  on  considerably
+         smaller  files.  In fact, due to less  "Overhead"  associated
+         with  small files, you'll actual achieve a better  efficiency
+         rating.
+
+         In  Non-Stream mode (which can be set by the receiver OR  the
+         sender), Zmax is a super Batch Xmodem or Ymodem depending  on
+         the block size. Super because it uses 32 bit CRC's instead of
+         16.
+
+         Even  using  Ymax  mode (Zmax running  1K  blocks  with  Acks
+         required), you'll get faster transfers than under Zmodem.  In
+         fact,  there  wasn't any measurable difference  between  Ymax
+         mode and Zmax mode on a 30K transfer. At least none that  the
+         efficiency  computation  routine showed.
+
+         This  is at 2400 baud of course. Non-Stream  protocols  don't
+         fair  near  as  well (speed wise) as  Streamed  protocols  at
+         highspeeds.
+
+         We'll call Zmax running 128 byte blocks with ACKS Xmax  mode.
+         Running  in this mode, you'll get about (maybe a tad  better)
+         Xmodem speed, but with the additional safty of 32bit CRCs.
+
+         I'd suggest allowing your users to directly address the  size
+         of the receiver buffers and wheither or not to use ACKS as  I
+         have  in  the  Zmax.c driver so they  can  customize  several
+         different  versions  to  best fit  the  conditions  they  may
+         encounter.
+
+         Zmax            Introduction Guide rev. 0.01           Page 2
+
+         Why  Non-Stream mode? Two reasons and the first  being  noisy
+         lines.
+
+         Stream  protocols don't fair well under noisy lines.  If  you
+         can SWITCH to non-stream (ack required) during the course  of
+         the transfer, your efficiency is generally better.
+
+         The  Second reason is computer type. Some computers  can  not
+         handle  writing  to the disk and receiving data at  the  same
+         time.
+
+         If your writing a Zmax driver for a computer that falls  into
+         this category, write the block of data to the disk BEFORE you
+         ACK  the block. The sender will wait up to 10 seconds  before
+         assuming an error has occurred.
+
+         As outlined in the code segment, I suggest switching to  NON-
+         Stream  mode when your block size reaches 128 bytes.  I  also
+         suggest  that you not go below 128 bytes.  Primarily  because
+         you  don't save much. It only takes about 2/10's of a  second
+         longer to send a 128 byte block over a 64 byte block at  2400
+         baud, less at 9600+.
+
+         Unlike  Zmodem  which sets an upper limit of  1024  bytes  on
+         block  sizes,  Zmax  has  an upper limit  of  over  32K.  One
+         shouldn't  go that high, at least with the  modems  currently
+         available.  Because  of this, Zmax may be used  as  a  mailer
+         protocol without ANY modifications.
+
+         Zmax  also has a LOT less CPU overhead than Zmodem so  slower
+         computers can drive highspeed modems FASTER.
+
+         Zmax  does not encode each byte of data like Zmodem  does.  I
+         can't see any real advantage to doing this and it reduces the
+         amount of CPU overhead and simplifies the code quite a bit.
+
+         Zmax  also  treats all files as Binary 8 bit files  and  will
+         require word length to be set to 8, which is the most  common
+         setting.
+
+         Please  pay  special attention to the timer  functions.  They
+         have  been worked out over a two year period of heavy  mailer
+         use  under  all kinds of conditions and have proven  to  work
+         exceptionally  well on Networks, Satellite Links,  and  under
+         Multi-Taskers.  Changing  any  of them can  lead  to  erratic
+         behavior on YOUR Zmax implementation.
+
+         Zmax  uses  two  block  start  characters,  instead  of   the
+         traditional  one. I do that to keep a stray  character  (line
+         noise) from accidentally triggering something it shouldn't.
+
+
+
+         Zmax            Introduction Guide rev. 0.01           Page 3
+
+
+                 Why A Zmodem Replacement in the first place?
+
+         Unless your attempting to write a Zmodem driver, you wouldn't
+         understand.
+
+         Zmodem   isn't  documented  very  well,  in  fact  the   only
+         documentation  that  I'm  aware  of  is  the  original   1988
+         publication and you'll have a hard time finding that one now.
+
+         It  left much to the imagination and were little more than  a
+         few sheets of paper glorifying Zmodem. And it only  contained
+         scrap segments of code that few could get to work.
+
+         The  original designer of Zmodem "SEEMS" to be interested  in
+         supporting only his own Zmodem driver.
+
+         That's fine, I'm the same way with Tmodem/Translink but  then
+         Tmodem/Translink  is  a  proprietary  protocol  and  I'm  not
+         interested  in  it  being used outside of  my  mailer  or  my
+         protocol driver(s).
+
+         Because of this, Zmodem implementations vary depending on who
+         wrote it and they aren't always compatible.
+
+         There are also other reasons, see the read.me text file. I do
+         NOT  know  if the information contained within  the  file  is
+         valid  or  not. I'm simply passing on  information  that  *I*
+         received which prompted me into finally writing Zmax.
+
+         I  think actual CODE is better than extensive  documentation,
+         you  can  actual SEE how its suppose to work,  so  Zmax.c  is
+         provided.
+
+         Zmax.c  is a full functional Zmax driver. You'll not be  able
+         to simply compile it because I do use my own libraries,  most
+         have Microsoft counter parts. You shouldn't have any  trouble
+         telling  WHAT a function does. Zmax.c also  contains  further
+         information on specific aspects of Zmax.
+
+         If  you  have any questions on ANY part of Zmax, one  of  our
+         tech. will be glad to help you with your code implementation.
+
+         Just call our customer support CBIS at 1-314-334-6359 and ask
+         any  question  you like. Please allow 2 working  days  for  a
+         reply.
+
+
+
+
+
+
+
+         Zmax            Introduction Guide rev. 0.01           Page 4
+
+                                   Zmax.exe
+
+         Zmax.exe requires a number of command line switches.
+
+         -B <Baud Rate>
+         -P <Port Number>
+         -L <Serial Lock Rate>
+         -R Receive files
+         -F <Filenames>
+         -K  Keep  interrupted transfers (Do not use if running  on  a
+             BBS)
+         -B, supported baud rates 300 - 115,200 Baud.
+         -P, Supported Com Ports, COM 1 and COM 2.
+         -L, Supported Locked Baud Rates, 300 - 115200 Baud.
+         -F,  As  many as DOS allows. Full drive, path,  and  filename
+              supported. Wildcard characters NOT supported.
+         -A, Run in NON-STREAM mode.
+         -S  xxxx,  Set block size to XXXX. Valid ranges;  1  -  2048.
+                    Going over 1024 at 2400 bps is NOT recommended. If
+                    this parameter is used, the -B MUST be used  first
+                    because -B will reset the block size according  to
+                    baud rate.
+
+                   NOTE:   -R  and  -F  MUST  be  the   last
+                   parameter on the command line. As soon as
+                   Zmax  encounters  either one of these two
+                   switches, it will begin to either Receive
+                   or Send.
+
+         There must be one at least blank space between The switch and
+         the parameter..ie. -B<BLANK>2400
+
+         The -L switch is only for those that do not have COMx= set in
+         the  environment. If your running Osiris then Zmax will   use
+         the COMx= automatically.
+
+         Sample Osiris Command line (protocol control file)
+
+         Send : -B *B -P *P -F *F
+         RCV  : -B *B -P *P -R
+
+         The Same for QuickTerm.
+
+
+
+
+
+
+
+
+
+
+
+         Zmax            Introduction Guide rev. 0.01           Page 5
+
+         As with any NEW program, version 0.01 is the introduction  of
+         Zmax  and  MAY  not  be stable  in  respects  to  the  actual
+         implementation  of the protocol. I'm a little leery  of  even
+         distributing  Zmax.c  with this version, but decided  that  I
+         would anyway.
+
+         Just  bare this in mind if your going to "ROLL" your own  and
+         keep  an  eye  out  for an offical 1.00  release  to  see  if
+         anythings been changed.
+
+              Zmax.exe End User (Non Developer) Licensing Information
+
+         Zmax  is  NOT public domain. Micro TECH Systems  Retains  ALL
+         RIGHTS TO THIS PROTOCOL.
+
+         Zmax.exe is provided as shareware to those interested only in
+         using the Zmax.exe protocol driver.
+
+         A  10  dollar Licensing fee is required if you  use  Zmax.exe
+         longer than 30 days.
+
+
+                         Developer Licensing Information
+
+         Zmax  is  NOT public domain. Micro TECH Systems  Retains  ALL
+         RIGHTS TO THIS PROTOCOL.
+
+         No  PART  of Zmax may be used in development  of  a  NON-ZMAX
+         protocol.
+
+         Developers  are  granted  a  license  to  use  Zmax  in  NON-
+         COMMERCIAL  applications and environments ONLY.
+
+                   A 10 dollar donation is requested to help
+                   offset development costs and to help with
+                   the  salaries  of the  technical  support
+                   person(s).
+
+         If  you application is intended for use in a program that  is
+         to be sold commercially, including shareware, you must  apply
+         for a Zmax COMMERCIAL License.
+
+         If  you  intend  to  develop  a Zmax  driver  for  USE  in  a
+         commercial environment, you must apply for a Zmax  COMMERCIAL
+         license.
+
+         All goverment agents Federal, State, and Local must apply for
+         a Zmax COMMERICAL license.
+
+
+
+
+
+         Zmax            Introduction Guide rev. 0.01           Page 6
+
+         You  may  NOT modify Zmax specifications.  Zmax  MUST  remain
+         uniform and only Micro TECH Systems may issue NEW or IMPROVED
+         Zmax specifications.
+
+         If you have a particular item in mind, submit it along with a
+         modified Zmax.c (Using our Zmax.c driver code) to Micro  TECH
+         Systems.

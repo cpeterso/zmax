@@ -1,0 +1,10 @@
+                               IMPORTANT NOTICE
+
+         0.01 is an INTRODUCTION version of Zmax. It may not be stable
+         and  it may have bugs although it appears to work just  fine.
+         0.01  has  been released to find out if there  are  any  bugs
+         lurking around.
+
+         Keep  an  eye open for the offical 1.00 release  sometime  in
+         Sept  1990. Rolling your own driver may not be in  your  best
+         interests until the offical 1.00 release.
